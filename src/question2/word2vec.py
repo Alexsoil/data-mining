@@ -42,7 +42,7 @@ def createModel(listoftext : list):
 # Loads the Word2Vec model from file 'gigaword.model'
 def loadModel():
     global word_model
-    word_model = gensim.models.Word2Vec.load('dataset' + os.path.sep + 'gigaword.model')
+    word_model = gensim.models.Word2Vec.load('gigaword.model')
 
 # Creates and saves the Word2Vec model as file 'gigaword.model'
 def CreateAndSaveModel():

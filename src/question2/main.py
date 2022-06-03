@@ -65,7 +65,7 @@ except:
     print("Done")
     if (NO_SAVE == 0):
         print("Saving, please wait...")
-        dataset.to_pickle("dataset" + os.path.sep + "vectors.pkl")
+        dataset.to_pickle("vectors.pkl")
         print("Vectorized reviews saved at dataset" + os.path.sep + "vectors.pkl")
 
 # Print information about the contents

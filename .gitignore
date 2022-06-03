@@ -1,0 +1,5 @@
+#Ignore word2vec model
+*.model
+
+#Ignore pickle files
+*.pkl
