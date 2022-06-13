@@ -1,14 +1,29 @@
 from typing import Literal
+import os
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
 from utils import read
 
-sources = read("sources")
-demand = read("demand")
+try:
+    sources = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
+    demand = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+    print('Pickles retrieved')
+except:
+    sources = read("sources")
+    demand = read("demand")
+    sources.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
+    demand.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+    print('Data pickled')
 
-print(sources)
-print(sources.describe())
+# print(sources)
+# print(sources.describe())
+# print(demand)
 # print(demand.describe())
+sample = sources.resample("7d").mean().fillna(0)
+sample['Datetime'] = sample.index
+sns.lineplot(x='Datetime', y='value', hue="variable", data=sample.melt(['Datetime']))
+plt.show()
 
 
 def supply_demand():

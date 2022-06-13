@@ -1,5 +1,6 @@
 from typing import Literal
 from os import listdir
+from os import path
 import pandas as pd
 
 int32 = pd.Int32Dtype()  # Nullable integer type
@@ -13,8 +14,9 @@ demand_dtype = dict.fromkeys(
 
 
 def read(kind: Literal['sources', 'demand']):
+    sep = path.sep
     df = pd.read_csv(
-        f'../../dataset/{kind}.csv',
+        f'dataset{sep}{kind}.csv',
         dtype=sources_dtype if kind == 'sources' else demand_dtype,
         index_col='Datetime'
     )
