@@ -3,3 +3,6 @@
 
 #Ignore pickle files
 *.pkl
+
+#Ignore pycache
+__pycache__
