@@ -1,6 +1,5 @@
 from typing import Literal
-from os import listdir
-from os import path
+import os
 import pandas as pd
 
 int32 = pd.Int32Dtype()  # Nullable integer type
@@ -14,7 +13,7 @@ demand_dtype = dict.fromkeys(
 
 
 def read(kind: Literal['sources', 'demand']):
-    sep = path.sep
+    sep = os.path.sep
     df = pd.read_csv(
         f'dataset{sep}{kind}.csv',
         dtype=sources_dtype if kind == 'sources' else demand_dtype,
@@ -48,7 +47,7 @@ def read_day(filename: str, kind: Literal['sources', 'demand']):
 
 def merge_days():
     for kind in ['sources', 'demand']:
-        filenames = listdir(f'../../dataset/{kind}')
+        filenames = os.listdir(f'../../dataset/{kind}')
         # Parse every .csv and merge them all into one DataFrame
         df = pd.concat([read_day(filename, kind) for filename in filenames])
         # Reindex to get rid of duplicates
@@ -57,6 +56,28 @@ def merge_days():
         print(df.info())
 
         df.to_csv(f'../../dataset/{kind}.csv', index=False)
+
+# If already pickled, load the data from pickled files for speed. Otherwise read .csv files and pickle them for future use. Return tuple with DataFrames (sources, demand).
+def load_data() -> tuple:
+    try:
+        sources = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
+        demand = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+        print('Pickles retrieved')
+    except:
+        sources = read("sources")
+        demand = read("demand")
+        sources.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
+        demand.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+        print('Data pickled')
+    finally:
+        return (sources, demand)
+
+# Proprocessing
+def fill_nan(raw: pd.DataFrame) -> pd.DataFrame:
+    for name, values in raw.iteritems():
+        raw[name].fillna(round(raw[name].median(skipna = True)), inplace = True)
+    print("Preprocessing complete")
+    return raw
 
 
 if __name__ == '__main__':

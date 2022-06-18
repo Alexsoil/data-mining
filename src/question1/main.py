@@ -1,21 +1,13 @@
 from typing import Literal
-import os
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from utils import read
+from dbscan import outlier_detector
+import utils
 
-try:
-    sources = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
-    demand = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
-    print('Pickles retrieved')
-except:
-    sources = read("sources")
-    demand = read("demand")
-    sources.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
-    demand.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
-    print('Data pickled')
-
+temp = utils.load_data()
+sources = utils.fill_nan(temp[0])
+demand = utils.fill_nan(temp[1])
 # print(sources)
 # print(sources.describe())
 # print(demand)
@@ -24,6 +16,8 @@ sample = sources.resample("7d").mean().fillna(0)
 sample['Datetime'] = sample.index
 sns.lineplot(x='Datetime', y='value', hue="variable", data=sample.melt(['Datetime']))
 plt.show()
+outlier_detector(sources, utils.source_names)
+outlier_detector(demand, utils.demand_dtype)
 
 
 def supply_demand():
