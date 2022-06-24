@@ -67,7 +67,8 @@ except:
 # oold the index of the first day of the final year (first row of test data)
 test_year = renewable.index.get_loc(datetime.datetime(2021, 1, 1, 0, 0 ,0))
 # drop the datetime column as it is useless
-renewable.drop(renewable.columns[10], axis=1, inplace=True)
+renewable.drop(renewable.columns[[0, 1, 2, 3, 4, 5, 6, 7, 8, 10]], axis=1, inplace=True)
+# renewable.drop(renewable.columns[10], axis=1, inplace=True)
 values = renewable.values
 # ensure data is float
 values = values.astype('float32')
@@ -78,10 +79,10 @@ scaled = scaler.fit_transform(values)
 reframed = series_to_supervised(scaled, 1, 1)
 # vars: Solar-1 Wind-2 Geothermal-3 Biomass-4 Biogas-5 S_hydro-6 L_hydro-7 Total-8 Demand-9 Required-10 Day-11 Hour-12 Minute-13
 # drop columns that we don't want to predict (everything but 'Required')
-reframed.drop(reframed.columns[[13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25]], axis=1, inplace=True)
+reframed.drop(reframed.columns[[5, 6, 7]], axis=1, inplace=True)
+# reframed.drop(reframed.columns[[13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25]], axis=1, inplace=True)
 
 print(reframed)
-
 # split into train and test sets
 values = reframed.values
 # number of total five minute intervals
@@ -120,5 +121,7 @@ inv_y = concatenate((test_y, test_X[:, 1:]), axis=1)
 inv_y = scaler.inverse_transform(inv_y)
 inv_y = inv_y[:,0]
 # calculate RMSE
+print(inv_y)
+print(renewable['2021-01-01':])
 rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
 print('Test RMSE: %.3f' % rmse)

@@ -3,16 +3,16 @@ import numpy as np
 import os
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 import word2vec
 
 # Un-comment this line to set the seed for the creation of the random forest to a set value. Comment for randomized value each run
 RANDOM_SWITCH = 100
 # Set number of decision trees the algorithm will create. Default 100.
-EST_NUM = 100
+EST_NUM = 300
 CRITERION = "gini"
-MAX_DEPTH = None
+MAX_DEPTH = 16
 # Number of CPU threads, for multithreaded tasks
 THREADS = os.cpu_count()
 # If 1, the code will run without loading the existing vectors.pkl and will not attempt to save data on it for later use.
