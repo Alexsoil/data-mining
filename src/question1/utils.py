@@ -46,6 +46,7 @@ def read_day(filename: str, kind: Literal['sources', 'demand']):
 
 
 def merge_days():
+    kind: Literal['sources', 'demand']
     for kind in ['sources', 'demand']:
         filenames = os.listdir(f'../../dataset/{kind}')
         # Parse every .csv and merge them all into one DataFrame
@@ -57,13 +58,15 @@ def merge_days():
 
         df.to_csv(f'../../dataset/{kind}.csv', index=False)
 
-# If already pickled, load the data from pickled files for speed. Otherwise read .csv files and pickle them for future use. Return tuple with DataFrames (sources, demand).
+
+# If already pickled, load the data from pickled files for speed.
+# Otherwise, read .csv files and pickle them for future use. Return tuple with DataFrames (sources, demand).
 def load_data() -> tuple:
     try:
         sources = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
         demand = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
         print('Pickles retrieved')
-    except:
+    except FileNotFoundError:
         sources = read("sources")
         demand = read("demand")
         sources.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
@@ -72,10 +75,11 @@ def load_data() -> tuple:
     finally:
         return (sources, demand)
 
-# Proprocessing
+
+# Preprocessing
 def fill_nan(raw: pd.DataFrame) -> pd.DataFrame:
     for name, values in raw.iteritems():
-        raw[name].fillna(round(raw[name].median(skipna = True)), inplace = True)
+        raw[name].fillna(round(raw[name].median(skipna=True)), inplace=True)
     print("Preprocessing complete")
     return raw
 

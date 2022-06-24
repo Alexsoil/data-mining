@@ -1,8 +1,11 @@
-#Ignore word2vec model
+# word2vec model
 *.model
 
-#Ignore pickle files
+# pickle files
 *.pkl
 
-#Ignore pycache
+# pycache
 __pycache__
+
+# Virtual environment
+venv
