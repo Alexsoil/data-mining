@@ -43,6 +43,7 @@ def outlier_detector(raw: pd.DataFrame, col_list: list) -> None:
         plt.legend(handles=scatter.legend_elements()[0], title= 'Cluster', labels=labels)
         plt.xlabel("Days")
         plt.ylabel(item)
+        plt.savefig('images' + os.path.sep + str(item))
         # Print outliers
         labeled_data = np.append(data, np.transpose([dbscan_cluster.labels_]), axis=1)
         output = pd.DataFrame(data=labeled_data, columns=['Datetime', 'Value', 'DayofYear', 'Label'])

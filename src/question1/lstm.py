@@ -9,10 +9,11 @@ import datetime
 from math import sqrt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error, max_error
 from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Dense
+from keras.layers import Dropout
 from keras.layers import LSTM 
 
 def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
@@ -38,7 +39,6 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
 		agg.dropna(inplace=True)
 	return agg
 
-print("H portra kollhse")
 try:
     renewable = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'renewables.pkl')
     print('Pickles retrieved')
@@ -66,7 +66,7 @@ except:
 
 # oold the index of the first day of the final year (first row of test data)
 test_year = renewable.index.get_loc(datetime.datetime(2021, 1, 1, 0, 0 ,0))
-# drop the datetime column as it is useless
+# drop the datetime column as it is useless (ACTUAL: Drop all columns except the Required energy, day, hour and minute)
 renewable.drop(renewable.columns[[0, 1, 2, 3, 4, 5, 6, 7, 8, 10]], axis=1, inplace=True)
 # renewable.drop(renewable.columns[10], axis=1, inplace=True)
 values = renewable.values
@@ -77,12 +77,12 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 scaled = scaler.fit_transform(values)
 # frame for supervised learning
 reframed = series_to_supervised(scaled, 1, 1)
-# vars: Solar-1 Wind-2 Geothermal-3 Biomass-4 Biogas-5 S_hydro-6 L_hydro-7 Total-8 Demand-9 Required-10 Day-11 Hour-12 Minute-13
+# vars: Solar-1 Wind-2 Geothermal-3 Biomass-4 Biogas-5 S_hydro-6 L_hydro-7 Total-8 Demand-9 Required-10 Day-11 Hour-12 Minute-13 (OLD)
 # drop columns that we don't want to predict (everything but 'Required')
 reframed.drop(reframed.columns[[5, 6, 7]], axis=1, inplace=True)
 # reframed.drop(reframed.columns[[13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 24, 25]], axis=1, inplace=True)
 
-print(reframed)
+# print(reframed)
 # split into train and test sets
 values = reframed.values
 # number of total five minute intervals
@@ -94,18 +94,18 @@ test_X, test_y = test[:, :-1], test[:, -1]
 # reshape input to be 3D [samples, timesteps, features]
 train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
 test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
-print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
+# print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
 
 try:
     model = load_model('dataset' + os.path.sep + 'neuralnet.model')
 except:
     # design network
     model = Sequential()
-    model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2])))
+    model.add(LSTM(128, input_shape=(train_X.shape[1], train_X.shape[2])))
     model.add(Dense(1))
     model.compile(loss='mae', optimizer='adam')
     # fit network
-    history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
+    history = model.fit(train_X, train_y, epochs=70, batch_size=60, validation_data=(test_X, test_y), verbose=1, shuffle=False)
     model.save('dataset' + os.path.sep + 'neuralnet.model')
 
 # make a prediction
@@ -121,7 +121,12 @@ inv_y = concatenate((test_y, test_X[:, 1:]), axis=1)
 inv_y = scaler.inverse_transform(inv_y)
 inv_y = inv_y[:,0]
 # calculate RMSE
-print(inv_y)
-print(renewable['2021-01-01':])
-rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
-print('Test RMSE: %.3f' % rmse)
+# print(inv_yhat)
+# print(renewable['2021-01-01':])
+mse = mean_squared_error(inv_y, inv_yhat)
+mae = mean_absolute_error(inv_y, inv_yhat)
+rmse = sqrt(mse)
+maxe = max_error(inv_y, inv_yhat)
+print('Test Root Mean Squared Error: %.3f' % rmse)
+print('Test Mean Absolute Error: %.3f' % mae)
+print('Test Max Error: %.3f' % maxe)
