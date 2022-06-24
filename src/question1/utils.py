@@ -13,9 +13,8 @@ demand_dtype = dict.fromkeys(
 
 
 def read(kind: Literal['sources', 'demand']):
-    sep = os.path.sep
     df = pd.read_csv(
-        f'dataset{sep}{kind}.csv',
+        os.path.join('dataset', f'{kind}.csv'),
         dtype=sources_dtype if kind == 'sources' else demand_dtype,
         index_col='Datetime'
     )
@@ -30,7 +29,7 @@ def read_day(filename: str, kind: Literal['sources', 'demand']):
     # Parse file
     try:
         df = pd.read_csv(
-            f'../../dataset/{kind}/{filename}',
+            os.path.join('dataset', kind, filename),
             dtype=sources_dtype if kind == 'sources' else demand_dtype,
             header=0,
             names=['Time'] + source_names if kind == 'sources' else None
@@ -48,7 +47,7 @@ def read_day(filename: str, kind: Literal['sources', 'demand']):
 def merge_days():
     kind: Literal['sources', 'demand']
     for kind in ['sources', 'demand']:
-        filenames = os.listdir(f'../../dataset/{kind}')
+        filenames = os.listdir(os.path.join('dataset', kind))
         # Parse every .csv and merge them all into one DataFrame
         df = pd.concat([read_day(filename, kind) for filename in filenames])
         # Reindex to get rid of duplicates
@@ -56,21 +55,21 @@ def merge_days():
 
         print(df.info())
 
-        df.to_csv(f'../../dataset/{kind}.csv', index=False)
+        df.to_csv(os.path.join('dataset', f'{kind}.csv'), index=False)
 
 
 # If already pickled, load the data from pickled files for speed.
 # Otherwise, read .csv files and pickle them for future use. Return tuple with DataFrames (sources, demand).
 def load_data() -> tuple:
     try:
-        sources = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
-        demand = pd.read_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+        sources = pd.read_pickle(os.path.join('dataset', 'pickleJar', 'sources.pkl'))
+        demand = pd.read_pickle(os.path.join('dataset', 'pickleJar', 'demand.pkl'))
         print('Pickles retrieved')
     except FileNotFoundError:
         sources = read("sources")
         demand = read("demand")
-        sources.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'sources.pkl')
-        demand.to_pickle('dataset' + os.path.sep + 'pickleJar' + os.path.sep + 'demand.pkl')
+        sources.to_pickle(os.path.join('dataset', 'pickleJar', 'sources.pkl'))
+        demand.to_pickle(os.path.join('dataset', 'pickleJar', 'demand.pkl'))
         print('Data pickled')
     finally:
         return (sources, demand)

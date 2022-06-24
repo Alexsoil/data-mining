@@ -7,6 +7,7 @@ from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 THREADS = os.cpu_count()
 
+
 # Input dataframe with data to process, and a list of the column names
 # Note! Input must not have NaN values! make sure to run preprocessing before
 def outlier_detector(raw: pd.DataFrame, col_list: list) -> None:
@@ -22,7 +23,7 @@ def outlier_detector(raw: pd.DataFrame, col_list: list) -> None:
         for idx, row in df.iterrows():
             df.loc[idx, 'DayofYear'] = int(row['Datetime'].timetuple().tm_yday)
         data = df.to_numpy()
-        min_pts = 4 # Minimum items in a cluster (Subject to change)
+        min_pts = 4  # Minimum items in a cluster (Subject to change)
         # Find optimal epsilon value
         nn = NearestNeighbors(n_neighbors=min_pts)
         neighbors = nn.fit(data[:, 2:0:-1])
@@ -40,7 +41,7 @@ def outlier_detector(raw: pd.DataFrame, col_list: list) -> None:
         labels = [-1]
         for i in range(len(dbscan_cluster.labels_) - 1):
             labels.append(i)
-        plt.legend(handles=scatter.legend_elements()[0], title= 'Cluster', labels=labels)
+        plt.legend(handles=scatter.legend_elements()[0], title='Cluster', labels=labels)
         plt.xlabel("Days")
         plt.ylabel(item)
         plt.savefig('images' + os.path.sep + str(item))

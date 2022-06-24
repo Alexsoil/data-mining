@@ -7,16 +7,16 @@ import utils
 
 sns.set_theme()
 
-temp = utils.load_data()
-sources = utils.fill_nan(temp[0])
-demand = utils.fill_nan(temp[1])
+sources, demand = [utils.fill_nan(x) for x in utils.load_data()]
 # print(sources)
 # print(sources.describe())
 # print(demand)
 # print(demand.describe())
 
-# outlier_detector(sources, utils.source_names)
-# outlier_detector(demand, utils.demand_dtype)
+
+def outliers():
+    outlier_detector(sources, utils.source_names)
+    outlier_detector(demand, utils.demand_dtype)
 
 
 def all_sources():
@@ -28,7 +28,8 @@ def all_sources():
         sample.melt(['Date'])
         .rename(columns={"variable": "Source", "value": "Megawatts"})
     )
-    sns.lineplot(x='Date', y='Megawatts', hue="Source", data=df)
+    graph = sns.lineplot(x='Date', y='Megawatts', hue="Source", data=df)
+    graph.set_title('')
     plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
     plt.show()
 
@@ -61,9 +62,6 @@ def duck_curve():
 
     plt.xticks(range(0, 24, 2))
     plt.show()
-
-
-all_sources()
 
 
 def supply_demand():
@@ -129,6 +127,3 @@ def source_mix():
     )
     mix["Percentage"] /= means.sum() / 100
     sns.barplot(data=mix, x="Percentage", y="Source").set_title("Energy production mix")
-
-
-
